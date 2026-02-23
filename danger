@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Access</title>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* MATRIX */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75);
+  z-index: 1;
+}
+
+/* TERMINAL */
+#terminal {
+  position: relative;
+  z-index: 2;
+  color: #00ff00;
+  padding: 20px;
+  width: 90%;
+  max-width: 600px;
+  margin: 80px auto;
+  background: rgba(0,0,0,0.9);
+  border: 1px solid #00ff00;
+  box-shadow: 0 0 20px #00ff00;
+  border-radius: 8px;
+  white-space: pre-line;
+}
+
+/* START */
+#start {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  margin-top: 30vh;
+  color: #00ff00;
+}
+
+button {
+  padding: 12px 25px;
+  border: 2px solid #00ff00;
+  background: black;
+  color: #00ff00;
+  cursor: pointer;
+}
+
+/* TIMER */
+#timer {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  color: #00ff00;
+  z-index: 2;
+}
+
+/* 🚨 ALERT FLASH */
+.alert {
+  animation: flash 0.3s infinite;
+}
+
+@keyframes flash {
+  0% { background: rgba(255,0,0,0.1); }
+  100% { background: rgba(255,0,0,0.5); }
+}
+
+/* SHAKE */
+.shake {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translate(5px); }
+  25% { transform: translate(-5px); }
+  50% { transform: translate(5px); }
+  75% { transform: translate(-5px); }
+  100% { transform: translate(0); }
+}
+
+/* CAMERA POPUP */
+#camera {
+  display: none;
+  position: fixed;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: black;
+  border: 2px solid red;
+  padding: 20px;
+  text-align: center;
+  color: red;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="overlay"></div>
+
+<div id="timer">Time: 00:00</div>
+
+<div id="start">
+  <h2>🔐 Secure System Access</h2>
+  <button onclick="startHack()">Click Here</button>
+</div>
+
+<div id="terminal" style="display:none;"></div>
+
+<div id="camera">
+  📸 CAMERA ACCESS GRANTED  
+  <br><br>
+  Recording...
+</div>
+
+<!-- SOUNDS -->
+<audio id="typeSound" src="https://www.soundjay.com/mechanical/keyboard-1.mp3"></audio>
+<audio id="alertSound" src="https://www.soundjay.com/button/beep-07.mp3"></audio>
+
+<script>
+/* MATRIX */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+let letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+letters = letters.split("");
+
+let fontSize = 14;
+let columns = canvas.width / fontSize;
+let drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function draw() {
+  ctx.fillStyle = "rgba(0,0,0,0.15)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#00ff00";
+  ctx.font = fontSize + "px monospace";
+
+  for (let i = 0; i < drops.length; i++) {
+    let text = letters[Math.floor(Math.random() * letters.length)];
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+      drops[i] = 0;
+
+    drops[i]++;
+  }
+}
+setInterval(draw, 40);
+
+/* TIMER */
+let sec = 0;
+setInterval(() => {
+  sec++;
+  let m = String(Math.floor(sec / 60)).padStart(2, '0');
+  let s = String(sec % 60).padStart(2, '0');
+  document.getElementById("timer").innerText = "Time: " + m + ":" + s;
+}, 1000);
+
+/* TYPE */
+function typeText(text, speed = 25) {
+  return new Promise(resolve => {
+    let i = 0;
+    const terminal = document.getElementById("terminal");
+    const sound = document.getElementById("typeSound");
+
+    function typing() {
+      if (i < text.length) {
+        terminal.innerHTML += text.charAt(i);
+        sound.currentTime = 0;
+        sound.play();
+        i++;
+        setTimeout(typing, speed);
+      } else {
+        terminal.innerHTML += "\n";
+        resolve();
+      }
+    }
+    typing();
+  });
+}
+
+/* MAIN */
+async function startHack() {
+  document.getElementById("start").style.display = "none";
+  const terminal = document.getElementById("terminal");
+  terminal.style.display = "block";
+
+  await typeText("Initializing breach...");
+  await typeText("Bypassing firewall...");
+  await typeText("Access granted...");
+
+  document.body.classList.add("alert");
+  document.getElementById("alertSound").play();
+
+  await typeText("\n⚠️ WARNING!");
+  await typeText("Device compromised!");
+
+  document.body.classList.add("shake");
+  navigator.vibrate?.(500);
+
+  await typeText("Extracting data...");
+  await typeText("Photos ✔ Contacts ✔ Files ✔");
+
+  document.getElementById("camera").style.display = "block";
+
+  await typeText("\n📸 Camera access enabled...");
+  await typeText("Recording user...");
+
+  await typeText("\n💳 Bank data scanning...");
+  await typeText("Access complete ✔");
+
+  await typeText("\n✔ ACCESS GRANTED");
+  await typeText("✔ DONE");
+
+  setTimeout(() => {
+    terminal.innerHTML += "\n\n😂 PRANK SUCCESSFUL!\nRelax... kuch hack nahi hua 😏";
+    document.getElementById("camera").style.display = "none";
+    document.body.classList.remove("alert");
+  }, 9000);
+}
+</script>
+
+</body>
+</html>
